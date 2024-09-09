@@ -61,6 +61,8 @@ type (
 
        Contact   string       `json: "contact"`
 
+       Profile   string `gorm:"type:longtext"`
+
    }
 
 )
@@ -143,6 +145,8 @@ func SignUp(c *gin.Context) {
        Wages:     payload.Wages,
 
        Contact:   payload.Contact,
+
+       Profile:   payload.Profile,
    }
 
 
@@ -227,3 +231,4 @@ func SignIn(c *gin.Context) {
 
 
 }
+

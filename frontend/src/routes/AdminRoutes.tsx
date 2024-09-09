@@ -54,6 +54,15 @@ const AdminRoutes = (isLoggedIn : boolean): RouteObject => {
 
       },
 
+      {
+
+        path: "/go",
+
+        element: <Postwork />,
+
+      },
+
+
 
       /*{
 

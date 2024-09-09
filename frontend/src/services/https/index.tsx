@@ -92,6 +92,13 @@ async function DeleteWorkById(id: string) {
     .catch((e) => e.response);
 }
 
+async function DeletePostworkById(id: string) {
+  return await axios
+    .delete(`${apiUrl}/postwork/${id}`, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+
 async function CreateUser(data: UsersInterface) {
   return await axios
     .post(`${apiUrl}/signup`, data, requestOptions)
@@ -105,6 +112,30 @@ async function CreateWork(data: WorkInterface) {
     .then((res) => res)
     .catch((e) => e.response);
 }
+
+export const GetUserProfile = async (): Promise<any> => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token found");
+
+  try {
+    const response = await fetch(`${apiUrl}/user/profile`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to fetch user profile");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    throw error;
+  }
+};
+
 export {
   SignIn,
   GetUsers,
@@ -119,4 +150,5 @@ export {
   CreateWork,
   GetPostwork,
   GetPostworkById,
+  DeletePostworkById,
 };

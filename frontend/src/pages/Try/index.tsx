@@ -1,85 +1,110 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Row, Col, Input, Typography, Select, Space, Button, Form, message, Avatar, InputNumber } from "antd";
-import { GetWorkById, UpdateWorkById, CreateWork } from "../../services/https/index";
-import dayjs from "dayjs";
+import { Row, Col, Input, Typography, Space, Button, Form, message, Avatar, InputNumber } from "antd";
+import { GetWorkById, UpdateWorkById, CreateWork, GetUserProfile } from "../../services/https/index";
 
 const { Text } = Typography;
-
-const handleChange = (value: string) => {
-  console.log(`selected ${value}`);
-};
-
-const imageUrl = 'https://scontent.fnak3-1.fna.fbcdn.net/v/t39.30808-6/286452690_1402478846887916_1887857152927935811_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeGJUXVsVlgTLF-cR2ATP7A3nZkAlxD2U3WdmQCXEPZTdQQOoLaFLYn1cikvchDm1LJGy6c_nAObHPWyuDvrIF9C&_nc_ohc=OJoVDw82kCEQ7kNvgGx5Ktj&_nc_ht=scontent.fnak3-1.fna&oh=00_AYC4txbTC_Pc3HcLEasKp-u_ptdqKnr9tojqdzraP5s_ow&oe=66D9FD22';
 
 export default function PostEdit() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
-  const [userName, setUserName] = useState<string>("");
+  const [profileImage, setProfileImage] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
 
-  // Fetch work data by ID (for editing an existing work)
-  const getWorkById = async (id: string) => {
-    let res = await GetWorkById(id);
-    if (res.status === 200) {
-      setUserName(res.data.first_name + " " + res.data.last_name);
-      form.setFieldsValue({
-        Info: res.data.Info,
-        Wages: res.data.Wages,
-        Category: res.data.Category,
-        Contact: res.data.Contact,
-      });
-    } else {
+  // Function to fetch user profile
+  const fetchUserProfile = async () => {
+    try {
+      const profileRes = await GetUserProfile();
+      setProfileImage(profileRes.Profile || '');
+      setFirstName(profileRes.FirstName || "No first name");
+      setLastName(profileRes.LastName || "No last name");
+    } catch (error) {
       messageApi.open({
         type: "error",
-        content: "ไม่พบข้อมูลผู้ใช้",
+        content: "Failed to fetch user profile",
       });
-      setTimeout(() => {
-        navigate("/work");
-      }, 2000);
     }
   };
 
+  // Function to fetch work data by ID
+  const getWorkById = async (id: string) => {
+    try {
+      let res = await GetWorkById(id);
+      if (res.status === 200) {
+        form.setFieldsValue({
+          Info: res.data.Info,
+          Wages: res.data.Wages,
+          Category: res.data.Category,
+          Contact: res.data.Contact,
+        });
+      } else {
+        messageApi.open({
+          type: "error",
+          content: "ไม่พบข้อมูลงาน",
+        });
+        setTimeout(() => {
+          navigate("/work");
+        }, 2000);
+      }
+    } catch (error) {
+      messageApi.open({
+        type: "error",
+        content: "Error fetching work data",
+      });
+    }
+  };
+
+  // Effect hook to fetch profile and work data
   useEffect(() => {
+    fetchUserProfile();
     if (id) {
       getWorkById(id);
     }
   }, [id]);
 
+  // Function to generate random WorkID
   const generateRandomWorkID = () => {
     const letters = Math.random().toString(36).substring(2, 4).toUpperCase();
-    const digits = Math.floor(100 + Math.random() * 900); // Generates a number between 100 and 999
+    const digits = Math.floor(100 + Math.random() * 900);
     return `${letters}${digits}`;
   };
 
+  // Function to handle form submission
   const onFinish = async (values: any) => {
     let payload = {
       ...values,
-      WorkID: id ? undefined : generateRandomWorkID(), // Generate WorkID only for creating new work
+      WorkID: id ? undefined : generateRandomWorkID(),
     };
 
     let res;
-    if (id) {
-      // Update existing work
-      res = await UpdateWorkById(id, payload);
-    } else {
-      // Create new work
-      res = await CreateWork(payload);
-    }
+    try {
+      if (id) {
+        res = await UpdateWorkById(id, payload);
+      } else {
+        res = await CreateWork(payload);
+      }
 
-    if (res.status === 200 || res.status === 201) {
-      messageApi.open({
-        type: "success",
-        content: id ? "แก้ไขข้อมูลสำเร็จ" : "สร้างข้อมูลสำเร็จ",
-      });
-      setTimeout(() => {
-        navigate("/work");
-      }, 2000);
-    } else {
+      if (res.status === 200 || res.status === 201) {
+        messageApi.open({
+          type: "success",
+          content: id ? "แก้ไขข้อมูลสำเร็จ" : "สร้างข้อมูลสำเร็จ",
+        });
+        setTimeout(() => {
+          navigate("/work");
+        }, 2000);
+      } else {
+        messageApi.open({
+          type: "error",
+          content: res.data.error,
+        });
+      }
+    } catch (error) {
       messageApi.open({
         type: "error",
-        content: res.data.error,
+        content: "Error submitting form",
       });
     }
   };
@@ -89,12 +114,12 @@ export default function PostEdit() {
       {contextHolder}
       <Row justify="center" style={{ marginTop: '40px' }}>
         <Col>
-          <Button type="primary" htmlType="submit" onClick={() => navigate('/work')}>
+          <Button type="primary" onClick={() => navigate('/work')}>
             EDIT
           </Button>
         </Col>
         <Col>
-          <Button type="primary" htmlType="submit" onClick={() => navigate('/go')}>
+          <Button type="primary" onClick={() => navigate('/go')}>
             PW
           </Button>
         </Col>
@@ -105,8 +130,12 @@ export default function PostEdit() {
         </Col>
         <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Space direction="vertical" size={30} style={{ textAlign: 'center' }}>
-            <Avatar shape="square" size={200} src={imageUrl} />
-            <Text strong>{userName}</Text> {/* Display user name */}
+            {profileImage ? (
+              <Avatar shape="square" size={200} src={profileImage} />
+            ) : (
+              <Avatar shape="square" size={200} style={{ backgroundColor: '#ccc' }}>No Image</Avatar>
+            )}
+            <Text>{firstName} {lastName}</Text>
           </Space>
         </Col>
         <div style={{ padding: '20px', maxWidth: '1200px', margin: 'auto' }}>
@@ -143,40 +172,42 @@ export default function PostEdit() {
                   <Form.Item
                     label="หมวดหมู่"
                     name="category"
-                    rules={[{ required: true, message: 'กรุณาเลือกหมวดหมู่' }]}
+                    rules={[{ required: true, message: 'กรุณากรอกหมวดหมู่' }]}
                   >
-                    <Select
-                      style={{ width: '100%', maxWidth: '300px' }}
-                      onChange={handleChange}
-                      options={[
-                        { value: 'ออกแบบเว็บไซต์', label: 'ออกแบบเว็บไซต์' },
-                        { value: 'เขียนบทความ', label: 'เขียนบทความ' },
-                        { value: 'แปลภาษาอังกฤษ-ไทย', label: 'แปลภาษาอังกฤษ-ไทย' },
-                        { value: 'การตลาด', label: 'การตลาด' },
-                        { value: 'นักพัฒนาแอปพลิเคชันมือถือ', label: 'นักพัฒนาแอปพลิเคชันมือถือ' },
-                      ]}
+                    <Input
+                      placeholder="กรุณากรอกหมวดหมู่"
+                      style={{ width: '100%', maxWidth: '300px', height: '40px' }}
                     />
                   </Form.Item>
                   <Form.Item
-                    label="Contact"
+                    label="อีเมล"
                     name="contact"
-                    rules={[{ required: true, message: 'กรุณากรอกข้อมูลที่นี่' }]}
+                    rules={[{ required: true, message: 'กรุณากรอกอีเมลของคุณ' }]}
                   >
                     <Input
-                      placeholder="กรุณากรอกข้อมูลที่นี่"
+                      placeholder="กรุณากรอกอีเมลของคุณ"
                       style={{ width: '100%', maxWidth: '300px', height: '40px' }}
                     />
                   </Form.Item>
                 </Space>
               </Col>
             </Row>
-            <Row justify="center" style={{ marginTop: '40px' }}>
-              <Col>
-                <Button type="primary" htmlType="submit">
-                  POST
+            <Form.Item>
+              <div style={{ textAlign: 'center' }}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  size="large"
+                  block
+                  style={{
+                    height: '50px',
+                    maxWidth: '100px',
+                  }}
+                >
+                  {id ? 'แก้ไขข้อมูล' : 'บันทึกข้อมูล'}
                 </Button>
-              </Col>
-            </Row>
+              </div>
+            </Form.Item>
           </Form>
         </div>
       </Row>

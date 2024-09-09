@@ -1,4 +1,3 @@
-// main.go
 package main
 
 import (
@@ -33,6 +32,8 @@ func main() {
     authorized.GET("/users", users.GetAll)
     authorized.GET("/user/:id", users.Get)
     authorized.DELETE("/user/:id", users.Delete)
+
+    authorized.GET("/user/profile", users.GetUserProfile)  // Add this line
 
     authorized.POST("/works", work.Create)
     authorized.GET("/works", work.GetAll)

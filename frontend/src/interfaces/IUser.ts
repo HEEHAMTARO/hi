@@ -25,5 +25,7 @@ export interface UsersInterface {
     Wages?: number;
 
     Contact?: string;
+
+    Profile?: string;
   
   }
