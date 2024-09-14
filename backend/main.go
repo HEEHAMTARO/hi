@@ -9,6 +9,9 @@ import (
     "example.com/sa-67-example/middlewares"
     "example.com/sa-67-example/controller/work"
     "example.com/sa-67-example/controller/postwork"
+    //resume
+    "example.com/sa-67-example/controller/resume"
+
 )
 
 const PORT = "8000"
@@ -43,6 +46,13 @@ func main() {
 
     authorized.GET("/postworks", postwork.GetAll)
     authorized.GET("/postwork/:id", postwork.Get)
+
+    //resume
+    authorized.POST("/resumes", resume.CreateResume)
+    authorized.GET("/resumes", resume.GetAllResume)
+    authorized.GET("/resumes/:id", resume.GetResume)
+    authorized.PUT("/resumes/:id", resume.UpdateResume)
+    authorized.DELETE("/resumes/:id", resume.DeleteResume)
     
     r.GET("/genders", genders.GetAll)
     r.GET("/", func(c *gin.Context) {

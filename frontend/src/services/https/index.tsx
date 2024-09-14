@@ -2,6 +2,8 @@ import { UsersInterface } from "../../interfaces/IUser";
 import { SignInInterface } from "../../interfaces/SignIn";
 import { WorkInterface } from "../../interfaces/Work";
 import { PostworkInterface } from "../../interfaces/Postwork";
+//resume
+import { ResumeInterface } from "../../interfaces/IResume";
 import axios from "axios";
 
 const apiUrl = "http://localhost:8000";
@@ -113,6 +115,41 @@ async function CreateWork(data: WorkInterface) {
     .catch((e) => e.response);
 }
 
+async function CreateResume(data: ResumeInterface) {
+  return await axios
+    .post(`${apiUrl}/resumes`, data, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+
+async function GetResume() {
+  return await axios
+    .get(`${apiUrl}/resumes`, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+
+async function GetResumeById(id: string) {
+  return await axios
+    .get(`${apiUrl}/resumes/${id}`, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+
+async function UpdateResumeById(id: string, data: ResumeInterface) {
+  return await axios
+    .put(`${apiUrl}/resumes/${id}`, data, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+
+async function DeleteResumeById(id: string) {
+  return await axios
+    .delete(`${apiUrl}/resumes/${id}`, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+
 export const GetUserProfile = async (): Promise<any> => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("No token found");
@@ -136,6 +173,8 @@ export const GetUserProfile = async (): Promise<any> => {
   }
 };
 
+
+
 export {
   SignIn,
   GetUsers,
@@ -151,4 +190,10 @@ export {
   GetPostwork,
   GetPostworkById,
   DeletePostworkById,
+  // Resume
+  CreateResume,
+  GetResume,
+  UpdateResumeById, // Added this line
+  DeleteResumeById,
+  GetResumeById,
 };

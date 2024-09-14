@@ -19,6 +19,11 @@ import WorkCreate from "../../pages/Post/create";
 import WorkEdit from "../../pages/Post/edit";
 import Work from "../../pages/Post";
 import Postwork from "../../pages/postwork";
+//resume
+import Resume from "../../pages/resume";
+import ResumeCreate from "../../pages/resume/create";
+import ResumeEdit from "../../pages/resume/edit";
+import ResumeView from "../../pages/resume/view";
 
 const { Header, Content } = Layout;
 
@@ -115,6 +120,16 @@ const FullLayout: React.FC = () => {
               </Link>
             </Button>
             <Button 
+              type="text" 
+              style={{ color: 'white', margin: '0 10px' }} 
+              onClick={() => setCurrentPage("resume")}
+            >
+              <Link to="/resume">
+                <UserOutlined style={{ color: 'white' }} />
+                <span style={{ color: 'white' }}> Resume</span>
+              </Link>
+            </Button>
+            <Button 
               type="primary" 
               onClick={Logout} 
               style={{ marginLeft: '20px' }}
@@ -137,6 +152,11 @@ const FullLayout: React.FC = () => {
     <Route path="/work/create" element={<WorkCreate />} />
     <Route path="/work/edit/:id" element={<WorkEdit />} />
     <Route path="/go" element={<Postwork />} />
+    //resume
+    <Route path="/resume" element={<Resume />} />
+    <Route path="/resume/create" element={<ResumeCreate />} />
+    <Route path="/resume/edit/:id" element={<ResumeEdit />} />
+    <Route path="/resume/view/:id" element={<ResumeView />} />
   </Routes>
 </div>
         </Content>

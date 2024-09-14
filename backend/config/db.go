@@ -56,6 +56,12 @@ func SetupDatabase() {
 
        &entity.Postwork{},
 
+       &entity.Personal{},
+       &entity.Study{},
+       &entity.Experience{},
+       &entity.Skill{},
+       &entity.Resume{},
+
    )
 
 

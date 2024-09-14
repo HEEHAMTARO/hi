@@ -27,6 +27,12 @@ const EditWork = Loadable(lazy(() => import("../pages/Post/edit")));
 
 const CreateWork = Loadable(lazy(() => import("../pages/Post/create")));
 
+//resume
+const Resume = Loadable(lazy(() => import("../pages/resume")));
+const CreateResume = Loadable(lazy(() => import("../pages/resume/create")));
+const EditResume = Loadable(lazy(() => import("../pages/resume/edit")));
+const ViewResume = Loadable(lazy(() => import("../pages/resume/view")));
+
 
 const AdminRoutes = (isLoggedIn : boolean): RouteObject => {
 
@@ -141,7 +147,28 @@ const AdminRoutes = (isLoggedIn : boolean): RouteObject => {
 
       },
 
-
+      //resume
+      {
+        path: "/resume",
+        children: [
+          {
+            path: "/resume",
+            element: <Resume />,
+          },
+          {
+            path: "/resume/create",
+            element: <CreateResume />,
+          },
+          {
+            path: "/resume/edit/:id",
+            element: <EditResume />,
+          },
+          {
+            path: "/resume/view/:id",
+            element: <ViewResume />,
+          }
+        ],
+      },  
     ],
 
   };
