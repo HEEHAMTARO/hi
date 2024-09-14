@@ -66,7 +66,7 @@ function Customers() {
       key: "gender",
       render: (record) => <>{record?.gender?.gender}</>,
     },
-    {
+    /*{
       title: "Address",
       dataIndex: "address",
       key: "address",
@@ -85,7 +85,7 @@ function Customers() {
       title: "Contact",
       dataIndex: "Contact",
       key: "contact",
-    },
+    },*/
     {
       title: "รูปประจำตัว", // เพิ่มคอลัมน์ Profile
       key: "Profile",

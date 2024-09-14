@@ -18,13 +18,13 @@ export interface UsersInterface {
   
     Password?: string;
 
-    Address?: string;
+    /*Address?: string;
 
     Category?: string;
 
     Wages?: number;
 
-    Contact?: string;
+    Contact?: string;*/
 
     Profile?: string;
   

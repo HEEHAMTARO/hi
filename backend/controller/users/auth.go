@@ -53,13 +53,13 @@ type (
 
        GenderID  uint      `json:"gender_id"`
 
-       Address   string     `json:"address"`
+       /*Address   string     `json:"address"`
        
        Category  string     `json: "category"`
 
        Wages     uint        `json: "wages"`
 
-       Contact   string       `json: "contact"`
+       Contact   string       `json: "contact"`*/
 
        Profile   string `gorm:"type:longtext"`
 
@@ -138,13 +138,13 @@ func SignUp(c *gin.Context) {
 
        GenderID:  payload.GenderID,
 
-       Address:   payload.Address,
+       /*Address:   payload.Address,
        
        Category:  payload.Category,
 
        Wages:     payload.Wages,
 
-       Contact:   payload.Contact,
+       Contact:   payload.Contact,*/
 
        Profile:   payload.Profile,
    }
