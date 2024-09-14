@@ -69,101 +69,64 @@ type (
 
 
 func SignUp(c *gin.Context) {
+    var payload signUp
 
-   var payload signUp
+    // Bind JSON payload to the struct
+    if err := c.ShouldBindJSON(&payload); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
+    db := config.DB()
+    var userCheck entity.Users
 
-   // Bind JSON payload to the struct
+    // Check if the user with the provided email already exists
+    result := db.Where("email = ?", payload.Email).First(&userCheck)
+    if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+        return
+    }
 
-   if err := c.ShouldBindJSON(&payload); err != nil {
+    if userCheck.ID != 0 {
+        c.JSON(http.StatusConflict, gin.H{"error": "Email is already registered"})
+        return
+    }
 
-       c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+    // Hash the user's password
+    hashedPassword, _ := config.HashPassword(payload.Password)
 
-       return
+    // Create a new user
+    user := entity.Users{
+        FirstName: payload.FirstName,
+        LastName:  payload.LastName,
+        Email:     payload.Email,
+        Age:       payload.Age,
+        Password:  hashedPassword,
+        BirthDay:  payload.BirthDay,
+        GenderID:  payload.GenderID,
+        Profile:   payload.Profile,
+    }
 
-   }
+    // Save the user to the database
+    if err := db.Create(&user).Error; err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
+    // Create an initial resume for the user
+    resume := entity.Resume{
+        UserID: user.ID,
+        // Set other fields as necessary
+    }
 
-   db := config.DB()
+    if err := db.Create(&resume).Error; err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to create resume"})
+        return
+    }
 
-   var userCheck entity.Users
-
-
-   // Check if the user with the provided email already exists
-
-   result := db.Where("email = ?", payload.Email).First(&userCheck)
-
-   if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
-
-       // If there's a database error other than "record not found"
-
-       c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
-
-       return
-
-   }
-
-
-   if userCheck.ID != 0 {
-
-       // If the user with the provided email already exists
-
-       c.JSON(http.StatusConflict, gin.H{"error": "Email is already registered"})
-
-       return
-
-   }
-
-
-   // Hash the user's password
-
-   hashedPassword, _ := config.HashPassword(payload.Password)
-
-
-   // Create a new user
-
-   user := entity.Users{
-
-       FirstName: payload.FirstName,
-
-       LastName:  payload.LastName,
-
-       Email:     payload.Email,
-
-       Age:       payload.Age,
-
-       Password:  hashedPassword,
-
-       BirthDay:  payload.BirthDay,
-
-       GenderID:  payload.GenderID,
-
-       /*Address:   payload.Address,
-       
-       Category:  payload.Category,
-
-       Wages:     payload.Wages,
-
-       Contact:   payload.Contact,*/
-
-       Profile:   payload.Profile,
-   }
-
-
-   // Save the user to the database
-
-   if err := db.Create(&user).Error; err != nil {
-
-       c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-
-       return
-
-   }
-
-
-   c.JSON(http.StatusCreated, gin.H{"message": "Sign-up successful"})
-
+    c.JSON(http.StatusCreated, gin.H{"message": "Sign-up successful", "resume_id": resume.ID})
 }
+
 
 
 func SignIn(c *gin.Context) {

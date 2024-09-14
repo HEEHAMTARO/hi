@@ -1,14 +1,12 @@
 import { UsersInterface } from "../../interfaces/IUser";
 import { SignInInterface } from "../../interfaces/SignIn";
 import { WorkInterface } from "../../interfaces/Work";
-import { PostworkInterface } from "../../interfaces/Postwork";
-//resume
 import { ResumeInterface } from "../../interfaces/IResume";
 import axios from "axios";
 
 const apiUrl = "http://localhost:8000";
-const Authorization = localStorage.getItem("token");
-const Bearer = localStorage.getItem("token_type");
+const Authorization = localStorage.getItem("token") || '';
+const Bearer = localStorage.getItem("token_type") || '';
 
 const requestOptions = {
   headers: {
@@ -80,6 +78,13 @@ async function UpdateWorkById(id: string, data: WorkInterface) {
     .catch((e) => e.response);
 }
 
+async function UpdateResumeById(id: string, data: ResumeInterface) {
+  return await axios
+    .put(`${apiUrl}/resumes/${id}`, data, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+
 async function DeleteUsersById(id: string) {
   return await axios
     .delete(`${apiUrl}/user/${id}`, requestOptions)
@@ -97,6 +102,13 @@ async function DeleteWorkById(id: string) {
 async function DeletePostworkById(id: string) {
   return await axios
     .delete(`${apiUrl}/postwork/${id}`, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+
+async function DeleteResumeById(id: string) {
+  return await axios
+    .delete(`${apiUrl}/resumes/${id}`, requestOptions)
     .then((res) => res)
     .catch((e) => e.response);
 }
@@ -136,44 +148,20 @@ async function GetResumeById(id: string) {
     .catch((e) => e.response);
 }
 
-async function UpdateResumeById(id: string, data: ResumeInterface) {
-  return await axios
-    .put(`${apiUrl}/resumes/${id}`, data, requestOptions)
-    .then((res) => res)
-    .catch((e) => e.response);
-}
-
-async function DeleteResumeById(id: string) {
-  return await axios
-    .delete(`${apiUrl}/resumes/${id}`, requestOptions)
-    .then((res) => res)
-    .catch((e) => e.response);
-}
-
-export const GetUserProfile = async (): Promise<any> => {
-  const token = localStorage.getItem("token");
-  if (!token) throw new Error("No token found");
-
+// ตัวอย่างฟังก์ชัน GetUserProfile
+export const GetUserProfile = async () => {
   try {
-    const response = await fetch(`${apiUrl}/user/profile`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-
+    const response = await fetch('/api/user/profile'); // ตรวจสอบ URL และวิธีการเรียกใช้
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to fetch user profile");
+      throw new Error('Network response was not ok.');
     }
-
     return await response.json();
   } catch (error) {
-    console.error("Error fetching user profile:", error);
-    throw error;
+    console.error('Error fetching user profile:', error);
+    throw error; // โยนข้อผิดพลาดให้กับ caller
   }
 };
-
-
+;
 
 export {
   SignIn,

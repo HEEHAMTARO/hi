@@ -57,5 +57,5 @@ type Resume struct {
 
      //เพิ่ม user
      UserID       uint      `json:"user_id"`
-     User         Users     `gorm:"foreignKey:UserID;references:ID"`
+     User         Users     `gorm:"foreignKey:UserID;references:ID" json:"user"`
 }
